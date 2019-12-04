@@ -3,7 +3,7 @@ import numpy as np
 
 
 def main():
-    x = NeuralNetwork(2, 3, 2)
+    x = NeuralNetwork(2, 3, 2, [0, 1])
     # print(x.i)
     # print(x.h)
     # print(x.o)
@@ -17,7 +17,8 @@ def main():
     # print(x.bias_2)
 
     i = np.random.randint(1.0, size=(x.i, 1))
-    print(x.guess(i))
+    t = [[1], [0]]
+    print(x.train(i, t, 1000))
 
 
 
