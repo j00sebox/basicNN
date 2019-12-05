@@ -1,25 +1,22 @@
 from nn import NeuralNetwork
 import numpy as np
-
+import random
 
 def main():
-    x = NeuralNetwork(2, 3, 2, [0, 1])
-    # print(x.i)
-    # print(x.h)
-    # print(x.o)
+    # xor example
+    xor = NeuralNetwork(2, 3, 2, [0, 1])
 
-    # # weight matrixes
-    # print(x.weights_1)
-    # print(x.weights_2)
+    inp = [ [[1], [1]], [[0], [1]], [[0], [0]], [[1], [0]]  ]
+    t2 = [ [[1], [0]], [[0], [1]], [[1], [0]], [[0], [1]]  ]
+    t1 = [ [[0]], [[1]] , [[0]], [[1]] ]
+ 
+    for i in range(0, 100000):  
+        xor.train(inp[i%4], t2[i%4])
 
-    # # bias matrixes
-    # print(x.bias_1)
-    # print(x.bias_2)
-
-    i = np.random.randint(1.0, size=(x.i, 1))
-    t = [[1], [0]]
-    print(x.train(i, t, 1000))
-
+    print(xor.guess([[1], [1]]))
+    print(xor.guess([[0], [1]]))
+    print(xor.guess([[1], [0]]))
+    print(xor.guess([[0], [0]]))
 
 
 if __name__ == "__main__":
