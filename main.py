@@ -4,7 +4,7 @@ import random
 
 def main():
     # xor example
-    xor = NeuralNetwork(2, 3, 2, [0, 1])
+    xor = NeuralNetwork(2, [3, 3], 2, [0, 1])
 
     # training data and the respective targets
     inp = [ [[1], [1]], [[0], [1]], [[0], [0]], [[1], [0]]  ]
@@ -12,8 +12,8 @@ def main():
 
     print("Training...")
     
-    # train for 50000 cycles using stochastic gradient descent
-    for i in range(0, 50000): 
+    # train for 7000 cycles using stochastic gradient descent
+    for i in range(0, 7001): 
         # get random data set
         r = random.randrange(0, 4) 
         xor.train(inp[r], targets[r])
