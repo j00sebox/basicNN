@@ -35,6 +35,7 @@ class NeuralNetwork(object):
         bias_1 = np.random.uniform(-1.01, 1.01, size=(self.hiddenLayer[0], 1))
         self.bias_matrix_list.append(bias_1)
         
+        # initialize weights and biases for hidden layers
         if len(hiddenLayer) > 1:
             for i in range(1, len(self.hiddenLayer)):
                 weights = np.random.uniform(-1.01, 1.01, size=(self.hiddenLayer[i], self.hiddenLayer[i - 1]))
@@ -53,6 +54,15 @@ class NeuralNetwork(object):
 
     # returns the neural network's guess for the correct output based on the data
     def guess(self, data):
+
+        output = self.compute_neurons(data).tolist()
+
+        guess = output.index(max(output))
+
+        print('Guess is: ', self.labels[guess])
+        
+
+    def compute_neurons(self, data):
 
         self.InputData = np.asarray(data)
 
@@ -82,7 +92,7 @@ class NeuralNetwork(object):
     # uses backpropagation to optimize the weights and biases
     def train(self, inputs, targets):
         # start by letting the network guess
-        result = self.guess(inputs)
+        result = self.compute_neurons(inputs)
 
         # set as empty before calculations
         backprop_error = []
