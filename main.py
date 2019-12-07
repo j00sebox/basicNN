@@ -6,19 +6,22 @@ def main():
     # xor example
     xor = NeuralNetwork(2, [3, 4], 2, [0, 1])
 
-    # training data and the respective targets
-    inp = [ [[1], [1]], [[0], [1]], [[0], [0]], [[1], [0]]  ]
-    targets = [ [[1], [0]], [[0], [1]], [[1], [0]], [[0], [1]]  ]
+    # load weights from prevoius training session
+    xor.load_weights_and_biases()
 
-    print("Training...")
+    # training data and the respective targets
+    # inp = [ [[1], [1]], [[0], [1]], [[0], [0]], [[1], [0]]  ]
+    # targets = [ [[1], [0]], [[0], [1]], [[1], [0]], [[0], [1]]  ]
+
+    # print("Training...")
     
-    # train for 7000 cycles using stochastic gradient descent
-    for i in range(0, 7001): 
-        # get random data set
-        r = random.randrange(0, 4) 
-        xor.train(inp[r], targets[r])
+    # # train for 7000 cycles using stochastic gradient descent
+    # for i in range(0, 7000): 
+    #     # get random data set
+    #     r = random.randrange(0, 4) 
+    #     xor.train(inp[r], targets[r])
     
-    print("Completed training")
+    # print("Completed training")
 
     print("Results: ")
 
@@ -46,6 +49,11 @@ def main():
     print('0: ', t4[0])
     print('1: ', t4[1])
     xor.guess([[0], [0]])
+
+    # weights can be stored in an excel file and retrived using the load_weights_and_biases() function
+    # xor.store_weights_and_biases()
+    
+    
 
 
 if __name__ == "__main__":
