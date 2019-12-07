@@ -1,14 +1,17 @@
 import math
 import numpy as np
 import xlwt 
-from xlwt import Workbook
+from openpyxl import Workbook
 import pandas as pd
 import os
 
 
 # sigmod function for neuron activation values
 def sigmoid(x):
-    result = 1 / (1 + np.exp(-x))
+    # stable version of sigmoid to prevent overflows
+    result = np.where(x >= 0, 
+                    1 / (1 + np.exp(-x)), 
+                    np.exp(x) / (1 + np.exp(x)))
     return result
 
 # Class to instantiate network structure
@@ -19,7 +22,7 @@ class NeuralNetwork(object):
 
     # takes in topology of neural network
     # second parameter is an array of hidden layer nodes
-    def __init__(self, inputNodes, hiddenLayer, outputNodes, outputLabels):
+    def __init__(self, inputNodes, hiddenLayer, outputNodes, outputLabels, learningRate = 0.1):
         # initialize network structure
         self.i = inputNodes
         self.o = outputNodes
@@ -27,6 +30,8 @@ class NeuralNetwork(object):
         self.weight_matrix_list = []
         self.bias_matrix_list = []
         self.activation_matrix_list = []
+
+        self.lr = learningRate
 
         # labels for what each output neuron represents
         self.labels = outputLabels
@@ -63,7 +68,7 @@ class NeuralNetwork(object):
 
         guess = output.index(max(output))
 
-        print('Guess is: ', self.labels[guess])
+        return self.labels[guess]
         
 
     def compute_neurons(self, data):
@@ -135,11 +140,11 @@ class NeuralNetwork(object):
 
     def store_weights_and_biases(self):
         # if file exists remove
-        if os.path.exists('weights.xls'):
-            os.remove('weights.xls')
+        if os.path.exists('weights.xlsx'):
+            os.remove('weights.xlsx')
 
-        if os.path.exists('biases.xls'):
-            os.remove('biases.xls')
+        if os.path.exists('biases.xlsx'):
+            os.remove('biases.xlsx')
 
         # create workbook for weights
         w = Workbook() 
@@ -150,35 +155,34 @@ class NeuralNetwork(object):
         # loop through matrix list elements
         for i in range(0, len(self.weight_matrix_list)):
             # add_sheet is used to create sheet. 
-            sheet = w.add_sheet('Sheet' + str(i))
-            for j in range(0, len(self.weight_matrix_list[i])):
+            sheet = w.create_sheet('Sheet' + str(i))
+            for j in range(0, len(self.weight_matrix_list[i])):     
                 for x in range(0, len(self.weight_matrix_list[i][j])):
-                    sheet.write(j + 1, x, self.weight_matrix_list[i][j][x])
+                    sheet.cell(j + 2, x + 1).value = self.weight_matrix_list[i][j][x]
         
         # save weights in file
-        w.save('weights.xls')
+        w.save('weights.xlsx')
 
         # loop through matrix list elements
         for i in range(0, len(self.bias_matrix_list)):
             # add_sheet is used to create sheet. 
-            sheet = b.add_sheet('Sheet' + str(i))
+            sheet = b.create_sheet('Sheet' + str(i))
             for j in range(0, len(self.bias_matrix_list[i])):
                 for x in range(0, len(self.bias_matrix_list[i][j])):
-                    sheet.write(j + 1, 1, self.bias_matrix_list[i][j][x])
+                    sheet.cell(j + 2, 2).value = self.bias_matrix_list[i][j][x]
 
         # save biases in file
-        b.save('biases.xls')
+        b.save('biases.xlsx')
 
     def load_weights_and_biases(self):
-        
         for i in range(0, len(self.weight_matrix_list)):
-            df = pd.read_excel('weights.xls', sheet_name='Sheet' + str(i))
+            df = pd.read_excel('weights.xlsx', sheet_name='Sheet' + str(i))
             for j in range(0, len(self.weight_matrix_list[i])):
                 for x in range(0, len(self.weight_matrix_list[i][j])):
                     self.weight_matrix_list[i][j][x] = df.iat[j, x]
         
         for i in range(0, len(self.bias_matrix_list)):
-            df = pd.read_excel('biases.xls', sheet_name='Sheet' + str(i))
+            df = pd.read_excel('biases.xlsx', sheet_name='Sheet' + str(i))
             for j in range(0, len(self.bias_matrix_list[i])):
                 for x in range(0, len(self.bias_matrix_list[i][j])):
                     self.bias_matrix_list[i][j][x] = df.iat[j, 1]
