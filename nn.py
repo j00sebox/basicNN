@@ -5,7 +5,6 @@ from openpyxl import Workbook
 import pandas as pd
 import os
 
-
 # sigmod function for neuron activation values
 def sigmoid(x):
     # stable version of sigmoid to prevent overflows
@@ -14,11 +13,14 @@ def sigmoid(x):
                     np.exp(x) / (1 + np.exp(x)))
     return result
 
+# softmax fucntion used for activation when using cross-entopy loss
+def softmax(x):
+    # stable version of softmax, more negative numbers will be pushed to zero
+    exps = np.exp(x - np.max(x))
+    return exps / np.sum(exps)
+
 # Class to instantiate network structure
 class NeuralNetwork(object):
-
-    # default learning rate for the network
-    lr = 0.1
 
     # takes in topology of neural network
     # second parameter is an array of hidden layer nodes
@@ -31,6 +33,7 @@ class NeuralNetwork(object):
         self.bias_matrix_list = []
         self.activation_matrix_list = []
 
+        # set learning rate
         self.lr = learningRate
 
         # labels for what each output neuron represents
@@ -63,14 +66,18 @@ class NeuralNetwork(object):
 
     # returns the neural network's guess for the correct output based on the data
     def guess(self, data):
-
+        
+        # get output activations
         output = self.compute_neurons(data).tolist()
 
+        # take the max activation as the guess
         guess = output.index(max(output))
 
+        # return guess
         return self.labels[guess]
         
-
+    # feed activations through network 
+    # returns the activations of the output layer
     def compute_neurons(self, data):
 
         self.InputData = np.asarray(data)
@@ -87,7 +94,7 @@ class NeuralNetwork(object):
                 self.activation_matrix_list.append(sigmoid(self.weight_matrix_list[i].dot(self.activation_matrix_list[i]) + self.bias_matrix_list[i]))
 
         # calculate activation for output neurons
-        self.activation_matrix_list.append(sigmoid(self.weight_matrix_list[-1].dot(self.activation_matrix_list[-1]) + self.bias_matrix_list[-1]))
+        self.activation_matrix_list.append(softmax(self.weight_matrix_list[-1].dot(self.activation_matrix_list[-1]) + self.bias_matrix_list[-1]))
         
         # copy list over to be used for training
         self.a = self.activation_matrix_list
@@ -103,6 +110,67 @@ class NeuralNetwork(object):
         # start by letting the network guess
         result = self.compute_neurons(inputs)
 
+        #self.mse(result, targets)
+
+        # get error for one case
+        cross_ent_err = targets - result
+        self.cross_entropy(result, targets, cross_ent_err)
+
+    def train_batch(self, inputs, targets, tItr):
+        cross_ent_err = 0
+        out = 0
+        # get average error over training batch
+        for i in range(0, tItr):
+            out = self.compute_neurons(inputs[i])
+            cross_ent_err += targets[i] - out
+
+        avg_err = cross_ent_err / tItr
+
+        self.cross_entropy(out, targets, avg_err)
+            
+    def cross_entropy(self, result, targets, err):
+        # set as empty before calculations
+        backprop_error = []
+        weight_list = []
+        bias_list = []
+        a_list = []
+
+        # convert targets to matrix
+        targets = np.asarray(targets)
+
+        backprop_error.append(err)
+
+        # create new lists with reversed order
+        weight_list = self.weight_matrix_list[::-1]
+        bias_list = self.bias_matrix_list[::-1]
+        a_list = self.a[::-1]
+
+        # backpropagate error to the hidden layer
+        for i in range(0, len(self.weight_matrix_list)):
+            backprop_error.append(weight_list[i].transpose().dot(backprop_error[i]))
+
+        # calculate gradient for cross entropy
+        gradient = backprop_error[0]*self.lr
+        delta_weights = gradient.dot(a_list[1].transpose())
+        weight_list[0] += delta_weights
+
+        bias_list[0] += gradient
+
+        # loop through and calculate the gradient decsent
+        for i in range(1, len(self.a) - 1):
+            # calculate and add adjustments for the weights
+            gradient = self.lr*2*a_list[i]*(1 - a_list[i])*backprop_error[i]
+            delta_weights = gradient.dot(a_list[i+1].transpose())
+            weight_list[i] += delta_weights
+
+            # adjust bias accordingly
+            bias_list[i] += gradient
+        
+        # set the weights and biases as the adjusted values
+        self.weight_matrix_list = weight_list[::-1]
+        self.bias_matrix_list = bias_list[::-1]
+
+    def mse(self, result, targets):
         # set as empty before calculations
         backprop_error = []
         weight_list = []
@@ -135,8 +203,6 @@ class NeuralNetwork(object):
         # set the weights and biases as the adjusted values
         self.weight_matrix_list = weight_list[::-1]
         self.bias_matrix_list = bias_list[::-1]
-
-        #self.a_factors = self.weights_2.transpose().dot(gradient2)
 
     def store_weights_and_biases(self):
         # if file exists remove
