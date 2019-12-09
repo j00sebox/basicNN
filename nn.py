@@ -24,7 +24,7 @@ class NeuralNetwork(object):
 
     # takes in topology of neural network
     # second parameter is an array of hidden layer nodes
-    def __init__(self, inputNodes, hiddenLayer, outputNodes, outputLabels, learningRate = 0.1):
+    def __init__(self, inputNodes, hiddenLayer, outputNodes, outputLabels, learningRate = 0.1, weightDecay = 0.01):
         # initialize network structure
         self.i = inputNodes
         self.o = outputNodes
@@ -35,6 +35,9 @@ class NeuralNetwork(object):
 
         # set learning rate
         self.lr = learningRate
+
+        # set weight decay
+        self.wd = weightDecay
 
         # labels for what each output neuron represents
         self.labels = outputLabels
@@ -124,9 +127,7 @@ class NeuralNetwork(object):
             out = self.compute_neurons(inputs[i])
             cross_ent_err += targets[i] - out
 
-        avg_err = cross_ent_err / tItr
-
-        self.cross_entropy(out, targets, avg_err)
+        self.cross_entropy(out, targets, cross_ent_err)
             
     def cross_entropy(self, result, targets, err):
         # set as empty before calculations
@@ -159,9 +160,11 @@ class NeuralNetwork(object):
         # loop through and calculate the gradient decsent
         for i in range(1, len(self.a) - 1):
             # calculate and add adjustments for the weights
-            gradient = self.lr*2*a_list[i]*(1 - a_list[i])*backprop_error[i]
-            delta_weights = gradient.dot(a_list[i+1].transpose())
-            weight_list[i] += delta_weights
+            gradient = self.lr*2*a_list[i]*(1 - a_list[i])*backprop_error[i] 
+            delta_weights = gradient.dot(a_list[i+1].transpose()) - 2*self.wd*weight_list[i]
+
+            # apply delta to weights
+            weight_list[i] += delta_weights 
 
             # adjust bias accordingly
             bias_list[i] += gradient
