@@ -67,6 +67,13 @@ class NeuralNetwork(object):
         bias_2 = np.random.uniform(-1.01, 1.01, size=(outputNodes, 1))
         self.bias_matrix_list.append(bias_2)
 
+    def activation(self, x, func):
+        if func == 'sigmoid':
+            return sigmoid(x)
+        elif func == 'softmax':
+            return softmax(x)
+           
+
     # returns the neural network's guess for the correct output based on the data
     def guess(self, data):
         
@@ -89,15 +96,15 @@ class NeuralNetwork(object):
         self.activation_matrix_list.append(self.InputData)
 
         # calculate activation for hidden neurons
-        self.activation_matrix_list.append(sigmoid(self.weight_matrix_list[0].dot(self.InputData) + self.bias_matrix_list[0]))
+        self.activation_matrix_list.append(self.activation((self.weight_matrix_list[0].dot(self.InputData) + self.bias_matrix_list[0]), 'sigmoid'))
 
         # cycle through hidden layers
         if len(self.hiddenLayer) > 1:
             for i in range(1, len(self.hiddenLayer)):
-                self.activation_matrix_list.append(sigmoid(self.weight_matrix_list[i].dot(self.activation_matrix_list[i]) + self.bias_matrix_list[i]))
+                self.activation_matrix_list.append(self.activation((self.weight_matrix_list[i].dot(self.activation_matrix_list[i]) + self.bias_matrix_list[i]), 'sigmoid'))
 
         # calculate activation for output neurons
-        self.activation_matrix_list.append(softmax(self.weight_matrix_list[-1].dot(self.activation_matrix_list[-1]) + self.bias_matrix_list[-1]))
+        self.activation_matrix_list.append(self.activation((self.weight_matrix_list[-1].dot(self.activation_matrix_list[-1]) + self.bias_matrix_list[-1]), 'softmax'))
         
         # copy list over to be used for training
         self.a = self.activation_matrix_list
