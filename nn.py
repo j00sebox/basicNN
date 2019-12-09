@@ -113,11 +113,11 @@ class NeuralNetwork(object):
         # start by letting the network guess
         result = self.compute_neurons(inputs)
 
-        #self.mse(result, targets)
+        #self.mse_backprop(result, targets)
 
         # get error for one case
         cross_ent_err = targets - result
-        self.cross_entropy(result, targets, cross_ent_err)
+        self.cross_entropy_backprop(result, targets, cross_ent_err)
 
     def train_batch(self, inputs, targets, tItr):
         cross_ent_err = 0
@@ -127,9 +127,13 @@ class NeuralNetwork(object):
             out = self.compute_neurons(inputs[i])
             cross_ent_err += targets[i] - out
 
-        self.cross_entropy(out, targets, cross_ent_err)
+        self.cross_entropy_backprop(out, targets, cross_ent_err)
+
+    def cross_entropy(self, x, y):
+        loss = -x*np.log(y)
+        return loss
             
-    def cross_entropy(self, result, targets, err):
+    def cross_entropy_backprop(self, result, targets, err):
         # set as empty before calculations
         backprop_error = []
         weight_list = []
@@ -173,7 +177,11 @@ class NeuralNetwork(object):
         self.weight_matrix_list = weight_list[::-1]
         self.bias_matrix_list = bias_list[::-1]
 
-    def mse(self, result, targets):
+    def mse(self, x, y):
+        error = np.power((x - y), 2)
+        return error
+
+    def mse_backprop(self, result, targets):
         # set as empty before calculations
         backprop_error = []
         weight_list = []
