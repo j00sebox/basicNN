@@ -19,6 +19,10 @@ def softmax(x):
     exps = np.exp(x - np.max(x))
     return exps / np.sum(exps)
 
+# rectifier linear function as an alternative to the sigmoid
+def ReLU(x):
+    return np.maximum(x, 0)
+
 # Class to instantiate network structure
 class NeuralNetwork(object):
 
@@ -67,11 +71,14 @@ class NeuralNetwork(object):
         bias_2 = np.random.uniform(-1.01, 1.01, size=(outputNodes, 1))
         self.bias_matrix_list.append(bias_2)
 
+    # decides which activation function to use
     def activation(self, x, func):
         if func == 'sigmoid':
             return sigmoid(x)
         elif func == 'softmax':
             return softmax(x)
+        elif func == 'ReLU':
+            return ReLU(x)
            
 
     # returns the neural network's guess for the correct output based on the data
@@ -96,12 +103,12 @@ class NeuralNetwork(object):
         self.activation_matrix_list.append(self.InputData)
 
         # calculate activation for hidden neurons
-        self.activation_matrix_list.append(self.activation((self.weight_matrix_list[0].dot(self.InputData) + self.bias_matrix_list[0]), 'sigmoid'))
+        self.activation_matrix_list.append(self.activation((self.weight_matrix_list[0].dot(self.InputData) + self.bias_matrix_list[0]), 'ReLU'))
 
         # cycle through hidden layers
         if len(self.hiddenLayer) > 1:
             for i in range(1, len(self.hiddenLayer)):
-                self.activation_matrix_list.append(self.activation((self.weight_matrix_list[i].dot(self.activation_matrix_list[i]) + self.bias_matrix_list[i]), 'sigmoid'))
+                self.activation_matrix_list.append(self.activation((self.weight_matrix_list[i].dot(self.activation_matrix_list[i]) + self.bias_matrix_list[i]), 'ReLU'))
 
         # calculate activation for output neurons
         self.activation_matrix_list.append(self.activation((self.weight_matrix_list[-1].dot(self.activation_matrix_list[-1]) + self.bias_matrix_list[-1]), 'softmax'))
