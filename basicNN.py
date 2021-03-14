@@ -24,7 +24,7 @@ def ReLU(x):
     return np.maximum(x, 0)
 
 # Class to instantiate network structure
-class NeuralNetwork(object):
+class basicNN(object):
 
     # takes in topology of neural network
     # second parameter is an array of hidden layer nodes
@@ -103,12 +103,12 @@ class NeuralNetwork(object):
         self.activation_matrix_list.append(self.InputData)
 
         # calculate activation for hidden neurons
-        self.activation_matrix_list.append(self.activation((self.weight_matrix_list[0].dot(self.InputData) + self.bias_matrix_list[0]), 'ReLU'))
+        self.activation_matrix_list.append(self.activation((self.weight_matrix_list[0].dot(self.InputData) + self.bias_matrix_list[0]), 'sigmoid'))
 
         # cycle through hidden layers
         if len(self.hiddenLayer) > 1:
             for i in range(1, len(self.hiddenLayer)):
-                self.activation_matrix_list.append(self.activation((self.weight_matrix_list[i].dot(self.activation_matrix_list[i]) + self.bias_matrix_list[i]), 'ReLU'))
+                self.activation_matrix_list.append(self.activation((self.weight_matrix_list[i].dot(self.activation_matrix_list[i]) + self.bias_matrix_list[i]), 'sigmoid'))
 
         # calculate activation for output neurons
         self.activation_matrix_list.append(self.activation((self.weight_matrix_list[-1].dot(self.activation_matrix_list[-1]) + self.bias_matrix_list[-1]), 'softmax'))
@@ -127,11 +127,11 @@ class NeuralNetwork(object):
         # start by letting the network guess
         result = self.compute_neurons(inputs)
 
-        #self.mse_backprop(result, targets)
+        self.mse_backprop(result, targets)
 
         # get error for one case
-        cross_ent_err = targets - result
-        self.cross_entropy_backprop(result, targets, cross_ent_err)
+        # cross_ent_err = targets - result
+        # self.cross_entropy_backprop(result, targets, cross_ent_err)
 
     def train_batch(self, inputs, targets, tItr):
         cross_ent_err = 0

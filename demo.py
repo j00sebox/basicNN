@@ -1,10 +1,10 @@
-from nn import NeuralNetwork
+from basicNN import basicNN
 import numpy as np
 import random
 
 def main():
     # xor example
-    xor = NeuralNetwork(2, [3, 4], 2, [0, 1], 0.1)
+    xor = basicNN(2, [3, 4], 2, [0, 1], 0.1)
 
     # load weights from prevoius training session
     # xor.load_weights_and_biases()
@@ -15,8 +15,8 @@ def main():
 
     print("Training...")
     
-    # train for 7000 cycles using stochastic gradient descent
-    for i in range(0, 3000): 
+    # train for n cycles using stochastic gradient descent
+    for i in range(0, 10000): 
         # get random data set
         r = random.randrange(0, 4) 
         xor.train(inp[r], targets[r])
@@ -51,7 +51,7 @@ def main():
     print('Guess is: ', xor.guess([[0], [0]]))
 
     # weights can be stored in an excel file and retrived using the load_weights_and_biases() function
-    # xor.store_weights_and_biases()
+    xor.store_weights_and_biases()
     
     
 
